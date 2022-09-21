@@ -29,26 +29,6 @@ resource "google_service_account" "cloud_builder" {
   account_id   = "cloud-builder"
   display_name = "Service account for running cloud builds triggers"
 }
-# Narrow these?
-resource "google_project_iam_member" "cloud_builder_act_as" {
-  project = data.google_project.shared.project_id
-  role    = "roles/iam.serviceAccountUser"
-  member  = "serviceAccount:${google_service_account.cloud_builder.email}"
-}
-
-resource "google_project_iam_member" "cloud_builder_logs_writer" {
-  project = data.google_project.shared.project_id
-  role    = "roles/logging.logWriter"
-  member  = "serviceAccount:${google_service_account.cloud_builder.email}"
-}
-
-
-output "ar_repo_urls" {
-  value = {
-    "web" = "${google_artifact_registry_repository.web.location}-docker.pkg.dev/${google_artifact_registry_repository.web.project}/${google_artifact_registry_repository.web.name}"
-  }
-}
-
 
 resource "google_cloudbuild_trigger" "web_new_build" {
   name            = "website-new-build"
@@ -86,4 +66,10 @@ resource "google_storage_bucket_iam_member" "member" {
   bucket = google_storage_bucket.build_logs.name
   role = "roles/storage.admin"
   member = "serviceAccount:${google_service_account.cloud_builder.email}"
+}
+
+output "ar_repo_urls" {
+  value = {
+    "web" = "${google_artifact_registry_repository.web.location}-docker.pkg.dev/${google_artifact_registry_repository.web.project}/${google_artifact_registry_repository.web.name}"
+  }
 }

@@ -16,9 +16,9 @@ variable "primary_revision_image_url" {
 }
 
 variable "primary_revision_traffic_percent" {
-    type = number
-    description = "Percentage value for primary Cloud Run revision. The previous revision will default to 100 minus this value."
-    default = 100
+  type        = number
+  description = "Percentage value for primary Cloud Run revision. The previous revision will default to 100 minus this value."
+  default     = 100
 }
 
 variable "revision_b_name" {

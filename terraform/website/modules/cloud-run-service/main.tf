@@ -2,7 +2,7 @@ data "google_project" "app" {
 }
 
 locals {
-  primary_revision_name = "${var.run_service_name}-${random_id.revision_suffix.hex}"  
+  primary_revision_name = "${var.run_service_name}-${random_id.revision_suffix.hex}"
 }
 
 # Service accounts
@@ -48,7 +48,7 @@ resource "google_cloud_run_service" "my_app" {
   }
   # This is the primary revision
   traffic {
-    percent = var.primary_revision_traffic_percent
+    percent       = var.primary_revision_traffic_percent
     revision_name = local.primary_revision_name # will always be newly created revision
   }
 
@@ -72,9 +72,9 @@ data "google_iam_policy" "noauth" {
 }
 
 resource "google_cloud_run_service_iam_policy" "noauth" {
-  location = google_cloud_run_service.my_app.location
-  project  = google_cloud_run_service.my_app.project
-  service  = google_cloud_run_service.my_app.name
+  location    = google_cloud_run_service.my_app.location
+  project     = google_cloud_run_service.my_app.project
+  service     = google_cloud_run_service.my_app.name
   policy_data = data.google_iam_policy.noauth.policy_data
 }
 

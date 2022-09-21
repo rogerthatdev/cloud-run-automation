@@ -11,6 +11,12 @@ resource "google_artifact_registry_repository" "web" {
   ]
 }
 
+resource "google_service_account" "shared_terraformer" {
+  account_id   = "shared-terraformer"
+  display_name = "Terraform service account."
+}
+
+
 output "ar_repo_urls" {
     value = {
        "web" = "${google_artifact_registry_repository.web.location}-docker.pkg.dev/${google_artifact_registry_repository.web.project}/${google_artifact_registry_repository.web.name}"

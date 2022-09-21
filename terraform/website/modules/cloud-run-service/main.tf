@@ -2,12 +2,7 @@ data "google_project" "app" {
 }
 
 locals {
-  primary_revision_name = "${var.run_service_name}-${random_id.revision_suffix.hex}"
-  # TODO: add support for more revisions
-  revision_names = {
-    revision_b = var.revision_b_name == "" ? local.primary_revision_name : var.revision_b_name
-  }
-  revision_b_traffic_percent = 100 - var.primary_revision_traffic_percent
+  primary_revision_name = "${var.run_service_name}-${random_id.revision_suffix.hex}"  
 }
 
 # Service accounts
@@ -53,15 +48,13 @@ resource "google_cloud_run_service" "my_app" {
   }
   # This is the primary revision
   traffic {
-    # TODO: add support for adjusting percentages
     percent = var.primary_revision_traffic_percent
-    # will always be new revision
-    revision_name = local.primary_revision_name
+    revision_name = local.primary_revision_name # will always be newly created revision
   }
-  # This is revision B. Defaults to the same as revision A if not provided.
+
   traffic {
-    percent       = local.revision_b_traffic_percent
-    revision_name = local.revision_names.revision_b
+    percent       = 100 - var.primary_revision_traffic_percent
+    revision_name = var.revision_b_name == "" ? local.primary_revision_name : var.revision_b_name # Defaults to the same as revision A if not provided.
   }
 
   depends_on = [

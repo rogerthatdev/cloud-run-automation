@@ -1,7 +1,8 @@
 locals {
   services = [
     "artifactregistry.googleapis.com",
-    "cloudbuild.googleapis.com"
+    "cloudbuild.googleapis.com",
+    "iam.googleapis.com"
   ]
 }
 

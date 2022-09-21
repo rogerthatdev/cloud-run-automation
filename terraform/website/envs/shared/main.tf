@@ -15,9 +15,9 @@ resource "google_artifact_registry_repository" "web" {
 
 resource "google_artifact_registry_repository_iam_member" "cloud_builder_writer" {
   repository = google_artifact_registry_repository.web.name
-  location = google_artifact_registry_repository.web.location
-  role = "roles/artifactregistry.writer"
-  member = "serviceAccount:${google_service_account.cloud_builder.email}"
+  location   = google_artifact_registry_repository.web.location
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${google_service_account.cloud_builder.email}"
 }
 
 resource "google_service_account" "shared_terraformer" {
@@ -64,7 +64,7 @@ resource "google_storage_bucket" "build_logs" {
 
 resource "google_storage_bucket_iam_member" "member" {
   bucket = google_storage_bucket.build_logs.name
-  role = "roles/storage.admin"
+  role   = "roles/storage.admin"
   member = "serviceAccount:${google_service_account.cloud_builder.email}"
 }
 

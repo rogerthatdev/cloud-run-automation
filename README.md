@@ -22,6 +22,7 @@ Feature Request: default it to automatically use the last revision as an automat
 ## Incorporating it in a automated pipeline thing
 
 ### Needed:
-  - Build trigger that will go off when Terraform changes. It will run Terraform apply. If a new image URL is provided it will roll out the revision 25% at a time. It will use the `latest_revision` output retrieved at the beginning of the run for `TF_VAR_revision_b_name`.  
+  - Build trigger that will go off website source changes. It will trigger:
+    1. build new image and push to AR
+    1. Run a build job that will run tf apply with the new image as input for URL. It will loop with the revision percentage increasing each time by increment of 20%. It will use the `latest_revision` output retrieved at the beginning of the run for `TF_VAR_revision_b_name`.  
 
-  

@@ -54,6 +54,34 @@ resource "google_cloudbuild_trigger" "web_new_build" {
   tags = []
 }
 
+resource "google_cloudbuild_trigger" "auto_deploy_trigger" {
+  name            = "test-auto-deploy-trigger"
+  description     = "This trigger will automatically deploy a new revision in the cloud run service when new build shows up"
+  service_account = google_service_account.cloud_builder.id
+  # filename        = "terraform/website/envs/staging/cloudbuild.yaml"
+
+  git_file_source {
+    path      = "terraform/website/envs/staging/cloudbuild.yaml"
+    repo_type = "GITHUB"
+    revision  = "refs/heads/master"
+    uri       = "https://github.com/rogerthatdev/cloud-run-automation"
+  }
+  pubsub_config {
+    topic = "projects/cloud-run-auto-shared-c8b7/topics/gcr"
+  }
+
+  source_to_build {
+    ref       = "refs/heads/master"
+    repo_type = "GITHUB"
+    uri       = "https://github.com/rogerthatdev/cloud-run-automation"
+  }
+  ignored_files = []
+  substitutions = {
+
+  }
+  tags = []
+}
+
 resource "google_storage_bucket" "build_logs" {
   name          = "${data.google_project.shared.project_id}-build-logs"
   location      = "US"

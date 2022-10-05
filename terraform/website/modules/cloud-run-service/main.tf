@@ -78,6 +78,10 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   policy_data = data.google_iam_policy.noauth.policy_data
 }
 
+output "latest_revision" {
+  value = "${google_cloud_run_service.my_app.status[0].latest_created_revision_name}"
+}
+
 # Can be used to check if this is the first time creating Run Service (id will be null if resource doesn't exist.)
 # data "google_cloud_run_service" "run_service" {
 #   project  = var.project_id

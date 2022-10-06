@@ -34,6 +34,7 @@ resource "google_service_account" "cloud_builder" {
   display_name = "Service account for running cloud builds triggers"
 }
 
+# This is a trigger that looks at a yaml in the repo
 resource "google_cloudbuild_trigger" "web_new_build" {
   name            = "website-new-build"
   description     = "This trigger will automatically build an new image based on merges to main in web directory on repo"
@@ -147,7 +148,6 @@ resource "google_cloudbuild_trigger" "web_deploy_trigger" {
 
     }
     options {
-      # logging = "CLOUD_LOGGING_ONLY"
       logging = "GCS_ONLY"
     }
   }

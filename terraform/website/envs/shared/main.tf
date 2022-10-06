@@ -20,6 +20,10 @@ resource "google_artifact_registry_repository_iam_member" "cloud_builder_writer"
   member     = "serviceAccount:${google_service_account.cloud_builder.email}"
 }
 
+resource "google_pubsub_topic" "gcr" {
+  name     = "gcr"
+}
+
 resource "google_service_account" "shared_terraformer" {
   account_id   = "shared-terraformer"
   display_name = "Terraform service account."
@@ -54,9 +58,9 @@ resource "google_cloudbuild_trigger" "web_new_build" {
   tags = []
 }
 
-resource "google_cloudbuild_trigger" "auto_deploy_trigger" {
-  name            = "test-auto-deploy-trigger"
-  description     = "This trigger will automatically deploy a new revision in the cloud run service when new build shows up"
+resource "google_cloudbuild_trigger" "web_deploy_trigger" {
+  name            = "test-web-deploy-trigger"
+  description     = "*Testing - should automatically run terraform to update run service"
   service_account = google_service_account.cloud_builder.id
   # filename        = "terraform/website/envs/staging/cloudbuild.yaml"
 

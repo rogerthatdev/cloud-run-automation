@@ -58,33 +58,33 @@ resource "google_cloudbuild_trigger" "web_new_build" {
   tags = []
 }
 
-resource "google_cloudbuild_trigger" "web_deploy_trigger" {
-  name            = "test-web-deploy-trigger"
-  description     = "*Testing - should automatically run terraform to update run service"
-  service_account = google_service_account.cloud_builder.id
-  # filename        = "terraform/website/envs/staging/cloudbuild.yaml"
+# resource "google_cloudbuild_trigger" "web_deploy_trigger" {
+#   name            = "test-web-deploy-trigger"
+#   description     = "*Testing - should automatically run terraform to update run service"
+#   service_account = google_service_account.cloud_builder.id
+#   # filename        = "terraform/website/envs/staging/cloudbuild.yaml"
 
-  git_file_source {
-    path      = "terraform/website/envs/staging/cloudbuild.yaml"
-    repo_type = "GITHUB"
-    revision  = "refs/heads/master"
-    uri       = "https://github.com/rogerthatdev/cloud-run-automation"
-  }
-  pubsub_config {
-    topic = "projects/cloud-run-auto-shared-c8b7/topics/gcr"
-  }
+#   git_file_source {
+#     path      = "terraform/website/envs/staging/cloudbuild.yaml"
+#     repo_type = "GITHUB"
+#     revision  = "refs/heads/master"
+#     uri       = "https://github.com/rogerthatdev/cloud-run-automation"
+#   }
+#   pubsub_config {
+#     topic = "projects/cloud-run-auto-shared-c8b7/topics/gcr"
+#   }
 
-  source_to_build {
-    ref       = "refs/heads/master"
-    repo_type = "GITHUB"
-    uri       = "https://github.com/rogerthatdev/cloud-run-automation"
-  }
-  ignored_files = []
-  substitutions = {
+#   source_to_build {
+#     ref       = "refs/heads/master"
+#     repo_type = "GITHUB"
+#     uri       = "https://github.com/rogerthatdev/cloud-run-automation"
+#   }
+#   ignored_files = []
+#   substitutions = {
 
-  }
-  tags = []
-}
+#   }
+#   tags = []
+# }
 
 resource "google_storage_bucket" "build_logs" {
   name          = "${data.google_project.shared.project_id}-build-logs"
@@ -104,4 +104,56 @@ output "ar_repo_urls" {
   value = {
     "web" = "${google_artifact_registry_repository.web.location}-docker.pkg.dev/${google_artifact_registry_repository.web.project}/${google_artifact_registry_repository.web.name}"
   }
+}
+
+
+resource "google_cloudbuild_trigger" "web_deploy_trigger" {
+  name            = "test-web-deploy-trigger"
+  description     = "*Testing - should automatically run terraform to update run service"
+  service_account = google_service_account.cloud_builder.id
+  github {
+         owner = var.repo_owner
+         name  = var.repo_name
+
+         push {
+          branch       = "main"
+          invert_regex = false
+         }
+  }
+  build {
+    logs_bucket = google_storage_bucket.build_logs.name
+    step {
+      id        = "tf init"
+      name       = "hashicorp/terraform:1.0.0"
+      dir = "$_TF_DIRECTORY"
+      entrypoint = "sh"
+      args = ["-c",
+        <<-EOT
+        terraform init
+        EOT
+      ]
+
+    }
+    step {
+      id        = "tf plan"
+      name       = "hashicorp/terraform:1.0.0"
+      dir = "$_TF_DIRECTORY"
+      entrypoint = "sh"
+      args = ["-c",
+        <<-EOT
+        terraform plan
+        EOT
+      ]
+
+    }
+    options {
+      # logging = "CLOUD_LOGGING_ONLY"
+      logging = "GCS_ONLY"
+    }
+  }
+
+  substitutions = {
+    "_TF_DIRECTORY" = "terraform/website/envs/staging"
+  }
+  
 }

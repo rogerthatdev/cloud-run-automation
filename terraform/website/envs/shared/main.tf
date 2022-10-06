@@ -112,15 +112,25 @@ resource "google_cloudbuild_trigger" "web_deploy_trigger" {
   name            = "test-web-deploy-trigger"
   description     = "*Testing - should automatically run terraform to update run service"
   service_account = google_service_account.cloud_builder.id
-  github {
-         owner = var.repo_owner
-         name  = var.repo_name
+  # github {
+  #        owner = var.repo_owner
+  #        name  = var.repo_name
 
-         push {
-          branch       = "main"
-          invert_regex = false
-         }
+  #        push {
+  #         branch       = "main"
+  #         invert_regex = false
+  #        }
+  # }
+  pubsub_config {
+    topic        = google_pubsub_topic.gcr.id
   }
+
+  source_to_build {
+    ref       = "refs/heads/main"
+    repo_type = "GITHUB"
+    uri       = "https://github.com/${var.repo_owner}/${var.repo_name}"
+  }
+
   build {
     logs_bucket = google_storage_bucket.build_logs.name
     step {
